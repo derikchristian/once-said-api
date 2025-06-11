@@ -1,0 +1,62 @@
+enum Status {
+  APPROVED
+  PENDING
+  REJECTED
+}
+
+enum UserRole {
+  USER
+  ADMIN
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Quote {
+  id            Int         @id @default(autoincrement())
+  content       String      @unique
+  author        Author      @relation(fields: [authorId], references: [id])
+  authorId      Int
+  categories    Category[]
+  language      String
+  status        Status      @default(PENDING)
+  createdAt     DateTime    @default(now())
+  submittedBy   User?       @relation(fields: [submittedById], references: [id])
+  submittedById Int?
+  @@map("quotes")
+}
+
+model Author {
+  id        Int      @id @default(autoincrement())
+  name      String
+  qualifier String?  // This qualifier is used mainly to diferenciate people with the same name
+  imageUrl  String?  
+  quotes    Quote[]
+  status    Status   @default(PENDING)
+  @@map("authors")
+}
+
+model Category {
+  id       Int      @id @default(autoincrement())
+  name     String   @unique
+  quotes   Quote[]
+  status   Status   @default(PENDING)
+  @@map("categories")
+}
+
+model User {
+  id              Int      @id @default(autoincrement())
+  username        String   @unique
+  password        String
+  role            UserRole @default(USER)
+  createdAt       DateTime @default(now())
+  submittedQuotes Quote[]
+  isDeleted       Boolean  @default(false)
+  @@map("users")
+}
