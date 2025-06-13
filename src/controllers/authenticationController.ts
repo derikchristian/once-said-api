@@ -1,5 +1,5 @@
 import bcrypt from "bcrypt"
-import prisma from "../prisma/client"
+import prisma from "../lib/prisma"
 import { Request, Response } from "express"
 import { generateToken } from "../utils/jwt";
 

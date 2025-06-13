@@ -1,12 +1,16 @@
 {
-  "name": "citacoesapi",
+  "name": "quotable-api",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
     "dev": "nodemon --watch src --ext ts --exec ts-node src/server.ts",
     "build": "tsc && prisma generate",
-    "start": "node dist/server.js"
+    "start": "node dist/src/server.js",
+    "seed": "ts-node prisma/seed.ts"
+  },
+  "prisma": {
+    "seed": "ts-node prisma/seed.ts"
   },
   "keywords": [],
   "author": "",

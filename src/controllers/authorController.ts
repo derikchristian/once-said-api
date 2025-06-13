@@ -1,4 +1,4 @@
-import prisma from "../prisma/client";
+import prisma from "../lib/prisma";
 import { Request, Response } from "express";
 import { Status } from '@prisma/client';
 
@@ -142,11 +142,14 @@ export const createAuthor = async (req: Request, res: Response) => {
         return res.status(409).json({success: false, message: "Author with same name already exist, please add a qualifier"});
     }
 
+    const status =  process.env.AUTO_APPROVE === 'true'? "APPROVED" : undefined
+
     const newAuthor =  await prisma.author.create({
         data: {
             name,
             qualifier,
             imageUrl,
+            status,
         },
     });
     res.status(201).json({

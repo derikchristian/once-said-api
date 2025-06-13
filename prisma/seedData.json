@@ -1,0 +1,108 @@
+{
+    "categories": [{"name": "Motivational"},{"name": "Inspirational"},{"name": "Wisdom"},{"name": "Humor"},{"name": "Philosophy"},{"name": "Stoic"}],
+    "authors": [
+        {"name": "Original","imageUrl": null},
+        {"name": "Proverb", "imageUrl": null},
+        {"name": "Unknown", "imageUrl": null},
+        {"name": "Mark Twain", "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0c/Mark_Twain_by_AF_Bradley.jpg/250px-Mark_Twain_by_AF_Bradley.jpg"},
+        {"name": "Leonardo da Vinci", "imageUrl": "https://www.cartacapital.com.br/wp-content/uploads/2019/02/Kombo-Leonardo-Da-Vinci-und-Leonardo-di-Caprio.jpg"},
+        {"name": "Amelia Earhart", "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/8/8a/Earhart.jpg"},
+        {"name": "Walt Disney", "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/d/df/Walt_Disney_1946.JPG"},
+        {"name": "Jim Carrey", "imageUrl": "https://m.media-amazon.com/images/M/MV5BMTQwMjAwNzI0M15BMl5BanBnXkFtZTcwOTY1MTMyOQ@@._V1_FMjpg_UX1000_.jpg"},
+        {"name": "René Descartes", "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/73/Frans_Hals_-_Portret_van_Ren%C3%A9_Descartes.jpg/800px-Frans_Hals_-_Portret_van_Ren%C3%A9_Descartes.jpg"},
+        {"name": "Socrates", "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/8/8d/%CE%A3%CF%89%CE%BA%CF%81%CE%AC%CF%84%CE%B7%CF%82%2C_%CE%91%CE%BA%CE%B1%CE%B4%CE%B7%CE%BC%CE%AF%CE%B1_%CE%91%CE%B8%CE%B7%CE%BD%CF%8E%CE%BD_6616.jpg"},
+        {"name": "Marcus Aurelius", "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3b/MarcoAurelio.png/1200px-MarcoAurelio.png"}
+    ],
+    "quotes": [
+        {
+            "content": "Whenever you find yourself on the side of the majority, it is time to pause and reflect.",
+            "language": "english",
+            "categories": [{"name": "Wisdom"}],
+            "author": {"name": "Mark Twain"}
+        },        
+        {
+            "content": "The secret of getting ahead is getting started.",
+            "language": "english",
+            "categories": [{"name": "Motivational"}],
+            "author": {"name": "Mark Twain"}
+        },
+        {
+            "content": "Get your facts first, then you can distort them as you please.",
+            "language": "english",
+            "categories": [{"name": "Humor"}],
+            "author": {"name": "Mark Twain"}
+        },
+        {
+            "content": "It had long since come to my attention that people of accomplishment rarely sat back and let things happen to them. They went out and happened to things.",
+            "language": "english",
+            "categories": [{"name": "Motivational"}],
+            "author": {"name": "Leonardo da Vinci"}
+        },
+        {
+            "content": "Learning never exhausts the mind.",
+            "language": "english",
+            "categories": [{"name": "Wisdom"}],
+            "author": {"name": "Leonardo da Vinci"}
+        },
+        {
+            "content": "Simplicity is the ultimate sophistication.",
+            "language": "english",
+            "categories": [{"name": "Wisdom"}, {"name": "Humor"}],
+            "author": {"name": "Leonardo da Vinci"}
+        },
+        {
+            "content": "The most effective way to do it, is to do it.",
+            "language": "english",
+            "categories": [{"name": "Inspirational"}],
+            "author": {"name": "Amelia Earhart"}
+        },
+        {
+            "content": "The best way to get started is to quit talking and begin doing.",
+            "language": "english",
+            "categories": [{"name": "Motivational"}],
+            "author": {"name": "Walt Disney"}
+        },                
+        {
+            "content": "You can fail at what you don't want, so you might as well take a chance on doing what you love.",
+            "language": "english",
+            "categories": [{"name": "Inspirational"}],
+            "author": {"name": "Jim Carrey"}
+        },                       
+        {
+            "content": "I think, therefore I am.",
+            "language": "english",
+            "categories": [{"name": "Philosophy"}],
+            "author": {"name": "René Descartes"}
+        },
+        {
+            "content": "The only true wisdom is in knowing you know nothing.",
+            "language": "english",            
+            "categories": [{"name": "Philosophy"}, {"name": "Wisdom"}],
+            "author": {"name": "Socrates"}
+        },
+        {
+            "content": "Strong minds discuss ideas, average minds discuss events, weak minds discuss people.",
+            "language": "english",            
+            "categories": [{"name": "Philosophy"}, {"name": "Wisdom"}],
+            "author": {"name": "Socrates"}
+        },            
+        {
+            "content": "You have power over your mind not outside events. Realize this, and you will find strength.",
+            "language": "english",            
+            "categories": [{"name": "Philosophy"}, {"name": "Stoic"}],
+            "author": {"name": "Marcus Aurelius"}
+        },        
+        {
+            "content": "The happiness of your life depends upon the quality of your thoughts.",
+            "language": "english",
+            "categories": [{"name": "Philosophy"}, {"name": "Stoic"}],
+            "author": {"name": "Marcus Aurelius"}
+        },
+        {
+            "content": "Waste no more time arguing about what a good man should be. Be one.",
+            "language": "english",
+            "categories": [{"name": "Wisdom"}, {"name": "Philosophy"}, {"name": "Stoic"}],
+            "author": {"name": "Marcus Aurelius"}
+        }
+    ]
+}

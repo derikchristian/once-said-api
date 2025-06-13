@@ -1,4 +1,4 @@
-import prisma from "../prisma/client";
+import prisma from "../lib/prisma";
 import { Request, Response } from "express";
 import { Status } from '@prisma/client';
 
@@ -229,13 +229,16 @@ export const createQuote = async (req: Request, res: Response) => {
         return res.status(400).json({success: false, message: "Categories has at least one invalid ID"})
     }
 
+    const status =  process.env.AUTO_APPROVE === 'true'? "APPROVED" : undefined
+
     const newQuote =  await prisma.quote.create({
         data: {
             content, 
             authorId, 
             categories:{connect:categories.map((id: number) => ({id})),},
             language, 
-            submittedById: req.user!.id 
+            submittedById: req.user!.id,
+            status, 
         },include:{
             author: true,
             categories: true,

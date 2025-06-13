@@ -1,4 +1,4 @@
-import prisma from "../prisma/client";
+import prisma from "../lib/prisma";
 import { Request, Response } from "express";
 import { Status } from '@prisma/client';
 
@@ -131,8 +131,13 @@ export const createCategory = async (req: Request, res: Response) => {
         return res.status(400).json({success: false, message: "Category missing a name"});
     }
 
+    const status =  process.env.AUTO_APPROVE === 'true'? "APPROVED" : undefined
+
     const newCategory =  await prisma.category.create({
-        data: {name,},
+        data: {
+            name,
+            status,
+        },
     });
     res.status(201).json({
         sucess: true,

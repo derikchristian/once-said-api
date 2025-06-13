@@ -1,14 +1,3 @@
-enum Status {
-  APPROVED
-  PENDING
-  REJECTED
-}
-
-enum UserRole {
-  USER
-  ADMIN
-}
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -19,34 +8,38 @@ datasource db {
 }
 
 model Quote {
-  id            Int         @id @default(autoincrement())
-  content       String      @unique
-  author        Author      @relation(fields: [authorId], references: [id])
+  id            Int        @id @default(autoincrement())
+  content       String     @unique
   authorId      Int
-  categories    Category[]
   language      String
-  status        Status      @default(PENDING)
-  createdAt     DateTime    @default(now())
-  submittedBy   User?       @relation(fields: [submittedById], references: [id])
+  status        Status     @default(PENDING)
+  createdAt     DateTime   @default(now())
   submittedById Int?
+  author        Author     @relation(fields: [authorId], references: [id])
+  submittedBy   User?      @relation(fields: [submittedById], references: [id])
+  categories    Category[] @relation("CategoryToQuote")
+
   @@map("quotes")
 }
 
 model Author {
-  id        Int      @id @default(autoincrement())
+  id        Int     @id @default(autoincrement())
   name      String
-  qualifier String?  // This qualifier is used mainly to diferenciate people with the same name
-  imageUrl  String?  
+  qualifier String?
+  imageUrl  String?
+  status    Status  @default(PENDING)
   quotes    Quote[]
-  status    Status   @default(PENDING)
+
+  @@unique([name, qualifier])
   @@map("authors")
 }
 
 model Category {
-  id       Int      @id @default(autoincrement())
-  name     String   @unique
-  quotes   Quote[]
-  status   Status   @default(PENDING)
+  id     Int     @id @default(autoincrement())
+  name   String  @unique
+  status Status  @default(PENDING)
+  quotes Quote[] @relation("CategoryToQuote")
+
   @@map("categories")
 }
 
@@ -56,7 +49,19 @@ model User {
   password        String
   role            UserRole @default(USER)
   createdAt       DateTime @default(now())
-  submittedQuotes Quote[]
   isDeleted       Boolean  @default(false)
+  submittedQuotes Quote[]
+
   @@map("users")
+}
+
+enum Status {
+  APPROVED
+  PENDING
+  REJECTED
+}
+
+enum UserRole {
+  USER
+  ADMIN
 }
