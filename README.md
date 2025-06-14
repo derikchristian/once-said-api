@@ -1,5 +1,5 @@
 
-# Quotable API
+# Once Said API
 
 > 🇧🇷 **Este README também está disponível em [Português](#leia-em-português)**
 
@@ -15,7 +15,7 @@ A fast and simple REST API that manages quotes, authors, categories, and users a
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/your-username/phrase-api.git
+git clone https://github.com/derikchristian/once-said-api
 cd phrase-api
 ```
 
@@ -225,6 +225,52 @@ users queries:
 | `id`             | `number` | Get a specific category by its ID                                       |
 | `status`         | `string` | Filter by status (`APPROVED`, `PENDING`, `REJECTED`)                    |
 
+### POST routes
+
+#### All post routes have required and optional fields
+
+Fields for `/quotes`:
+
+| Parâmetro       | Type       | Description                                                 | Requirement   |
+| --------------- | ---------- | ----------------------------------------------------------- | ------------- | 
+| `content`       | `string`   | Quote text content                                          | Required      |
+| `authorId`      | `number`   | Quote author ID                                             | Required      |
+| `categories`    | `number[]` | List of quote categories IDs                                | Required      | 
+| `language`      | `string`   | Language of the quote (e.g., `portugues`, `english`)        | Required      |
+
+Campos para `/categories`:
+
+| Parâmetro       | Type       | Description                                                 | Requirement   |
+| --------------- | ---------- | ----------------------------------------------------------- | ------------- | 
+| `name`          | `string`   | Category name                                               | Required      |
+
+Campos para `/authors`:
+
+| Parâmetro       | Type       | Description                                                 | Requirement   |
+| --------------- | ---------- | ----------------------------------------------------------- | ------------- | 
+| `name`          | `string`   | Author Name                                                 | Required      |
+| `qualifier`     | `string`   | qualifier for desambiguation (e.g., musician, french)       | Optional      |
+| `ImageUrl`      | `string`   | Author image URL                                            | Optional      | 
+
+
+Campos para `/register`:
+
+| Parâmetro       | Type       | Description                                                 | Requirement   |
+| --------------- | ---------- | ----------------------------------------------------------- | ------------- | 
+| `username`      | `string`   | Username for the new user                                   | Required      |
+| `authorId`      | `string`   | Password for the new user                                   | Required      |
+
+
+Campos para `/login`:
+
+| Parâmetro       | Type       | Description                                                 | Requirement   |
+| --------------- | ---------- | ----------------------------------------------------------- | ------------- | 
+| `username`      | `string`   | Your username                                               | Required      |
+| `authorId`      | `string`   | Your password                                               | Required      |
+
+
+/users doesn't implement a `POST` route
+
 ---
 
 ## Structure
@@ -232,21 +278,23 @@ users queries:
 ### API structure
 
 ```
-quotable-api
+once-said-api
 ├── prisma
-│   └── schema.prisma
+│   ├── schema.prisma
+│   ├── seed.ts // seeding script
+│   └── seedData.json // data for seeding
 ├── src
 │   ├── controllers
 │   ├── middlewares
-│   ├── prisma
-│   │   └── client.ts //prisma client declaration
+│   ├── lib
+│   │   └── client.ts // Prisma client
 │   ├── routes
-│   ├── types //ts types
+│   ├── types
 │   │   └── express
-│   ├── utils //utility functions  
-│   ├──app.ts  //api definition
-│   └── server.ts  //api startup
-├── .env // where you should create your .env
+│   ├── utils
+│   ├── app.ts
+│   └── server.ts
+├── .env
 ├── package.json
 └── tsconfig.json
 ```
@@ -306,7 +354,7 @@ quotable-api
 
 - [ ] Deploy and example page
 - [ ] Add pagination and sorting
-- [ ] Seeding
+- [x] Seeding
 - [ ] Security improvements
 - [ ] Improved feedback related to pending authors and categories
 - [ ] Improved error handling
@@ -332,7 +380,7 @@ This project is part of my learning journey in backend and frontend development,
 
 ## Quick Links
 
-- 🔗 [GitHub Repository](https://github.com/derikchristian/phrase-api)
+- 🔗 [GitHub Repository](https://github.com/derikchristian/once-said-api)
 
 
 
@@ -340,7 +388,7 @@ This project is part of my learning journey in backend and frontend development,
 
 ## Leia em Português
 
-# Quotable API
+# Once Said API
 
 Uma API REST rápida e simples que gerencia citações, autores, categorias e usuários e serve frases. Este projeto foi criado para ser simples de usar e facilitar a criação de citações ou implementações com frases tematizadas.
 
@@ -353,7 +401,7 @@ Uma API REST rápida e simples que gerencia citações, autores, categorias e us
 ### 1. Clone o repositório
 
 ```bash
-git clone https://github.com/your-username/phrase-api.git
+git clone https://github.com/derikchristian/once-said-api.git
 cd phrase-api
 ```
 
@@ -526,7 +574,7 @@ Parâmetros para `/quotes` e `/quotes/random`:
 | Parâmetro       | Tipo     | Descrição                                                   |
 | --------------- | -------- | ----------------------------------------------------------- |
 | `search`        | `string` | Filtra pelo conteúdo da frase (busca parcial ou completa)   | 
-| `id`            | `number` | Filtra pelo ID da frase                                     |
+| `id`            | `number` | Filtra pelo ID da frase (não disponível em /random)         |
 | `author`        | `string` | Filtra por nome do autor                                    |
 | `authorId`      | `number` | Filtra por ID do autor                                      |
 | `category`      | `string` | Filtra por nome da categoria                                | 
@@ -534,9 +582,9 @@ Parâmetros para `/quotes` e `/quotes/random`:
 | `submittedBy`   | `string` | Filtra por nome de usuário que enviou                       |
 | `submittedById` | `number` | Filtra por ID do usuário que enviou                         |
 | `status`        | `string` | Filtra por status (`APPROVED`, `PENDING`, `REJECTED`)       |
-| `language`      | `string` | Filtra por idioma (ex: `portugues`, `english`)              |
+| `language`      | `string` | Filtra por idioma (e.g., `portugues`, `english`)            |
 
-Consultas para categorias:
+Parâmetros para `/categories`:
 
 | Parâmetro       | Tipo     | Descrição                                                   |
 | --------------- | -------- | ----------------------------------------------------------- |
@@ -544,7 +592,7 @@ Consultas para categorias:
 | `id`            | `number` | Filtra por ID da categoria                                  |
 | `status`        | `string` | Filtra por status (`APPROVED`, `PENDING`, `REJECTED`)       |
 
-Consultas para autores:
+Parâmetros para `/authors`:
 
 | Parâmetro       | Tipo     | Descrição                                                   |
 | --------------- | -------- | ----------------------------------------------------------- |
@@ -553,13 +601,59 @@ Consultas para autores:
 | `status`        | `string` | Filtra por status (`APPROVED`, `PENDING`, `REJECTED`)       |
 | `qualifier`     | `string` | Filtra por qualificador se incluso (e.g., musician, french) |
 
-Consultas para usuários:
+Parâmetros para `/users`:
 
 | Parâmetro       | Tipo     | Descrição                                                   |
 | --------------- | -------- | ----------------------------------------------------------- |
 | `username`      | `string` | Filtra pelo nome do usuário (busca parcial ou completa)     |
 | `id`            | `number` | Filtra pelo ID do usuário                                   |
 | `status`        | `string` | Filtra por status (`APPROVED`, `PENDING`, `REJECTED`)       |
+
+### Rotas POST
+
+#### Todas as rotas POST contém campos obrigatórios e opicionais
+
+Campos para `/quotes`:
+
+| Parâmetro       | Tipo       | Descrição                                                   | Exigência     |
+| --------------- | ---------- | ----------------------------------------------------------- | ------------- | 
+| `content`       | `string`   | Conteúdo textual da frase                                   | Obrigatório   |
+| `authorId`      | `number`   | ID do autor da frase                                        | Obrigatório   |
+| `categories`    | `number[]` | lista dos IDs das categorias da frase                       | Obrigatório   | 
+| `language`      | `string`   | Idioma da frase (e.g., `portugues`, `english`)              | Obrigatório   |
+
+Campos para `/categories`:
+
+| Parâmetro       | Tipo       | Descrição                                                   | Exigência     |
+| --------------- | ---------- | ----------------------------------------------------------- | ------------- | 
+| `name`          | `string`   | Nome da categoria                                           | Obrigatório   |
+
+Campos para `/authors`:
+
+| Parâmetro       | Tipo       | Descrição                                                   | Exigência     |
+| --------------- | ---------- | ----------------------------------------------------------- | ------------- | 
+| `name`          | `string`   | Nome do autor                                               | Obrigatório   |
+| `qualifier`     | `string`   | Qualificafor para desambiguação                             | Opcional      |
+| `ImageUrl`      | `string`   | Url da imagem do autor                                      | Opcional      | 
+
+
+Campos para `/register`:
+
+| Parâmetro       | Tipo       | Descrição                                                   | Exigência     |
+| --------------- | ---------- | ----------------------------------------------------------- | ------------- | 
+| `username`      | `string`   | Nome do novo usuário                                        | Obrigatório   |
+| `authorId`      | `string`   | Senha do novo usuário                                       | Obrigatório   |
+
+
+Campos para `/login`:
+
+| Parâmetro       | Tipo       | Descrição                                                   | Exigência     |
+| --------------- | ---------- | ----------------------------------------------------------- | ------------- | 
+| `username`      | `string`   | Seu nome de usuário                                         | Obrigatório   |
+| `authorId`      | `string`   | Sua Senha                                                   | Obrigatório   |
+
+
+/users não implementa uma rota `POST`
 
 ---
 
@@ -568,14 +662,16 @@ Consultas para usuários:
 ### Estrutura da API
 
 ```
-quotable-api
+once-said-api
 ├── prisma
-│   └── schema.prisma
+│   ├── schema.prisma
+│   ├── seed.ts // script de inicialização dos dados
+│   └── seedData.json // dados para inicialização
 ├── src
 │   ├── controllers
 │   ├── middlewares
-│   ├── prisma
-│   │   └── client.ts
+│   ├── lib
+│   │   └── client.ts // client Prisma
 │   ├── routes
 │   ├── types
 │   │   └── express
@@ -642,7 +738,7 @@ quotable-api
 
 - [ ] Deploy e pagina de exemplo
 - [ ] Paginação e Ordenamento
-- [ ] Dados iniciais
+- [x] Dados iniciais
 - [ ] Melhorias de segurança
 - [ ] Melhorar o feedback relacionado e autores e categorias pendentes
 - [ ] Tratamento de erros
@@ -668,5 +764,5 @@ Esse projeto e parte da minha jornada de aprendizado em desenvolvimento backend 
 
 ## Links
 
-- 🔗 [Repositório GitHub](https://github.com/derikchristian/phrase-api)
+- 🔗 [Repositório GitHub](https://github.com/derikchristian/once-said-api)
 

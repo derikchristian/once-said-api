@@ -3,10 +3,7 @@ import seedData from "./seedData.json"
 
 async function main() {
 
-    await prisma.quote.deleteMany();
-    await prisma.author.deleteMany();
-    await prisma.category.deleteMany();
-    await prisma.user.deleteMany();
+    await prisma.$executeRawUnsafe(`TRUNCATE TABLE quotes, authors, categories, users RESTART IDENTITY CASCADE;`);
    
     for (const category of seedData.categories) {
         
