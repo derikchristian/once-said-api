@@ -140,7 +140,7 @@ export const createCategory = async (req: Request, res: Response) => {
         },
     });
     res.status(201).json({
-        sucess: true,
+        success: true,
         message: "New category added",
         authenticated: !!req.user,
         role: req.user ? req.user.role : null,        

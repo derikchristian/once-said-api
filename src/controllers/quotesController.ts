@@ -205,24 +205,32 @@ export const createQuote = async (req: Request, res: Response) => {
 
     if (!content || !authorId || !categoriesIds || !language) {
         
-        return res.status(400).json({ success: false, message: "Missing required fields" });
+        return res.status(400).json({ success: false, message: "Missing required fields.",});
     }
 
-    if (categoriesIds && !Array.isArray(categoriesIds)) {
-      
-        return res.status(400).json({success: false, message: "Categories it's on the wrong format"});
-    }
+    const quote = await prisma.quote.findUnique({
+        where: { content },
+    });
+
+    if (quote) {
+        return res.status(400).json({success: false, message: "Quote text already exists.",});
+    } 
 
     if (!Number.isInteger(authorId)) {
         
         return res.status(400).json({success: false, message: "Author Id it`s not a valid integer",});
     }
-
+    
     const author = await prisma.author.findUnique({ where: { id: authorId } });
     
     if (!author) {
-
+        
         return res.status(400).json({ success: false, message: "Author Id not found" });
+    }
+    
+    if (categoriesIds && !Array.isArray(categoriesIds)) {
+      
+        return res.status(400).json({success: false, message: "Categories Ids it's on the wrong format.",});
     }
 
     if (categoriesIds.some((id: unknown) => !Number.isInteger(Number(id)))) {
@@ -230,13 +238,13 @@ export const createQuote = async (req: Request, res: Response) => {
         return res.status(400).json({success: false, message: "categories it's not a list of integers",});
     }
 
-    const categories = await prisma.category.findMany({where: {id: { in: categoriesIds },},});
+    const categories = await prisma.category.findMany({where: {id: { in: [... new Set(categoriesIds)] as number[] },},});
 
     if (categories.length !== categoriesIds.length) {
         
         const missing = categoriesIds.length - categories.length;
 
-        return res.status(404).json({success: false, message: `${missing} category ID${missing === 1? "" : "s"} were not found`,});
+        return res.status(400).json({success: false, message: `${missing} category ID${missing === 1? "" : "s"} were not found`,});
     }
 
     const status =  process.env.AUTO_APPROVE === 'true'? "APPROVED" : undefined
@@ -261,7 +269,7 @@ export const createQuote = async (req: Request, res: Response) => {
         },
     });
     res.status(201).json({
-        sucess: true,
+        success: true,
         message: "New quote added",
         authenticated: !!req.user,
         role: req.user ? req.user.role : null,        
@@ -277,11 +285,6 @@ export const updateQuote = async (req: Request, res: Response) => {
     if(isNaN(parseInt(id as string))) {
         return res.status(400).json({success: false, message: "Invalid ID"})
     }
-
-    if(status && !Object.values(Status).includes(status.toString().toUpperCase() as Status)) {
-        
-        return res.status(400).json({success: false, message: "Invalid status"})
-    }    
 
     const quote = await prisma.quote.findUnique({
         where: {id: parseInt(id as string)}, 
@@ -309,7 +312,12 @@ export const updateQuote = async (req: Request, res: Response) => {
         });
     }
 
-        const author = await prisma.author.findUnique({ where: { id: authorId } });
+    if(status && !Object.values(Status).includes(status.toString().toUpperCase() as Status)) {
+        
+        return res.status(400).json({success: false, message: "Invalid status"})
+    }    
+
+    const author = await prisma.author.findUnique({ where: { id: authorId } });
     
     if (!author) {
 
@@ -327,7 +335,7 @@ export const updateQuote = async (req: Request, res: Response) => {
         
         const missing = categoriesIds.length - categories.length;
 
-        return res.status(404).json({success: false, message: `${missing} category ID${missing === 1? "" : "s"} were not found`,});
+        return res.status(400).json({success: false, message: `${missing} category ID${missing === 1? "" : "s"} were not found`,});
     }
     
     const updatedQuote = await prisma.quote.update({

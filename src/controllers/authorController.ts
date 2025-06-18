@@ -153,7 +153,7 @@ export const createAuthor = async (req: Request, res: Response) => {
         },
     });
     res.status(201).json({
-        sucess: true,
+        success: true,
         message: "New author added",
         authenticated: !!req.user,
         role: req.user ? req.user.role : null,        
