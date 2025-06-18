@@ -16,7 +16,7 @@ A fast and simple REST API that manages quotes, authors, categories, and users a
 
 ```bash
 git clone https://github.com/derikchristian/once-said-api
-cd phrase-api
+cd once-said-api
 ```
 
 ### 2. Install dependencies
@@ -65,7 +65,7 @@ http://localhost:3000
 | ------ | ------------------------------ | ---------------------------------- | ------------------ |
 | GET    | `/users`                       | Lists all users                    | Optional           |
 | GET    | `/users/id`                    | Get a user by id                   | Optional           |
-O GET    | `/users/id/quotes`             | Get all quotes posted by a user    | Optional           |
+| GET    | `/users/id/quotes`             | Get all quotes posted by a user    | Optional           |
 | PATCH  | `/users/id`                    | Update a user                      | Oequired           |
 | DELETE | `/users/id`                    | Delete a user                      | Oequired           |
 
@@ -235,7 +235,7 @@ Fields for `/quotes`:
 | --------------- | ---------- | ----------------------------------------------------------- | ------------- | 
 | `content`       | `string`   | Quote text content                                          | Required      |
 | `authorId`      | `number`   | Quote author ID                                             | Required      |
-| `categories`    | `number[]` | List of quote categories IDs                                | Required      | 
+| `categoriesIds` | `number[]` | List of quote categories IDs                                | Required      | 
 | `language`      | `string`   | Language of the quote (e.g., `portugues`, `english`)        | Required      |
 
 Campos para `/categories`:
@@ -250,7 +250,7 @@ Campos para `/authors`:
 | --------------- | ---------- | ----------------------------------------------------------- | ------------- | 
 | `name`          | `string`   | Author Name                                                 | Required      |
 | `qualifier`     | `string`   | qualifier for desambiguation (e.g., musician, french)       | Optional      |
-| `ImageUrl`      | `string`   | Author image URL                                            | Optional      | 
+| `imageUrl`      | `string`   | Author image URL                                            | Optional      | 
 
 
 Campos para `/register`:
@@ -258,7 +258,7 @@ Campos para `/register`:
 | Parâmetro       | Type       | Description                                                 | Requirement   |
 | --------------- | ---------- | ----------------------------------------------------------- | ------------- | 
 | `username`      | `string`   | Username for the new user                                   | Required      |
-| `authorId`      | `string`   | Password for the new user                                   | Required      |
+| `password`      | `string`   | Password for the new user                                   | Required      |
 
 
 Campos para `/login`:
@@ -266,7 +266,7 @@ Campos para `/login`:
 | Parâmetro       | Type       | Description                                                 | Requirement   |
 | --------------- | ---------- | ----------------------------------------------------------- | ------------- | 
 | `username`      | `string`   | Your username                                               | Required      |
-| `authorId`      | `string`   | Your password                                               | Required      |
+| `password`      | `string`   | Your password                                               | Required      |
 
 
 /users doesn't implement a `POST` route
@@ -402,7 +402,7 @@ Uma API REST rápida e simples que gerencia citações, autores, categorias e us
 
 ```bash
 git clone https://github.com/derikchristian/once-said-api.git
-cd phrase-api
+cd once-said-api
 ```
 
 ### 2. Instale as dependências
@@ -431,7 +431,7 @@ npm run dev
 ```
 
 A API estará disponível em:
-http://localhost:3000
+http://localhost:5000
 
 ---
 
@@ -642,7 +642,7 @@ Campos para `/register`:
 | Parâmetro       | Tipo       | Descrição                                                   | Exigência     |
 | --------------- | ---------- | ----------------------------------------------------------- | ------------- | 
 | `username`      | `string`   | Nome do novo usuário                                        | Obrigatório   |
-| `authorId`      | `string`   | Senha do novo usuário                                       | Obrigatório   |
+| `password`      | `string`   | Senha do novo usuário                                       | Obrigatório   |
 
 
 Campos para `/login`:
@@ -650,7 +650,7 @@ Campos para `/login`:
 | Parâmetro       | Tipo       | Descrição                                                   | Exigência     |
 | --------------- | ---------- | ----------------------------------------------------------- | ------------- | 
 | `username`      | `string`   | Seu nome de usuário                                         | Obrigatório   |
-| `authorId`      | `string`   | Sua Senha                                                   | Obrigatório   |
+| `password`      | `string`   | Sua Senha                                                   | Obrigatório   |
 
 
 /users não implementa uma rota `POST`

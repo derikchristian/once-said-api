@@ -23,16 +23,6 @@ export const getQuotes = async (req:Request, res:Response) => {
         statusFilter.status = status.toString().toUpperCase() as Status
     }
 
-    if (category && categoryId) {
-
-        return res.status(400).json({success: false, message: "Use either category or categoryId"})
-    }    
-
-    if (author && authorId) {
-
-        return res.status(400).json({success: false, message: "Use either author or authorId"})
-    }
-
     if (id) {
 
         if (isNaN(parseInt(id as string))) {
@@ -211,22 +201,42 @@ export const getRandomQuote = async (req: Request, res: Response) => {
 
 export const createQuote = async (req: Request, res: Response) => {
 
-    const { content, authorId, categories, language } = req.body
+    const { content, authorId, categoriesIds, language } = req.body
 
-    if (!content || !authorId || !categories || !language) {
+    if (!content || !authorId || !categoriesIds || !language) {
         
         return res.status(400).json({ success: false, message: "Missing required fields" });
     }
 
-    
-    if (categories && !Array.isArray(categories)) {
+    if (categoriesIds && !Array.isArray(categoriesIds)) {
       
-        return res.status(400).json({success: false, message: "Categories it's on the wrong format"})
+        return res.status(400).json({success: false, message: "Categories it's on the wrong format"});
     }
 
-    if (categories.some(Number.isNaN)) {
+    if (!Number.isInteger(authorId)) {
+        
+        return res.status(400).json({success: false, message: "Author Id it`s not a valid integer",});
+    }
 
-        return res.status(400).json({success: false, message: "Categories has at least one invalid ID"})
+    const author = await prisma.author.findUnique({ where: { id: authorId } });
+    
+    if (!author) {
+
+        return res.status(400).json({ success: false, message: "Author Id not found" });
+    }
+
+    if (categoriesIds.some((id: unknown) => !Number.isInteger(Number(id)))) {
+        
+        return res.status(400).json({success: false, message: "categories it's not a list of integers",});
+    }
+
+    const categories = await prisma.category.findMany({where: {id: { in: categoriesIds },},});
+
+    if (categories.length !== categoriesIds.length) {
+        
+        const missing = categoriesIds.length - categories.length;
+
+        return res.status(404).json({success: false, message: `${missing} category ID${missing === 1? "" : "s"} were not found`,});
     }
 
     const status =  process.env.AUTO_APPROVE === 'true'? "APPROVED" : undefined
@@ -235,7 +245,7 @@ export const createQuote = async (req: Request, res: Response) => {
         data: {
             content, 
             authorId, 
-            categories:{connect:categories.map((id: number) => ({id})),},
+            categories:{connect:categoriesIds.map((id: number) => ({id})),},
             language, 
             submittedById: req.user!.id,
             status, 
@@ -261,7 +271,7 @@ export const createQuote = async (req: Request, res: Response) => {
 
 export const updateQuote = async (req: Request, res: Response) => {
     
-    const { content, authorId, categories, language, status } = req.body
+    const { content, authorId, categoriesIds, language, status } = req.body
     const { id } = req.params
 
     if(isNaN(parseInt(id as string))) {
@@ -298,13 +308,34 @@ export const updateQuote = async (req: Request, res: Response) => {
             role: req.user ? req.user.role : null,
         });
     }
+
+        const author = await prisma.author.findUnique({ where: { id: authorId } });
+    
+    if (!author) {
+
+        return res.status(400).json({ success: false, message: "Author Id not found" });
+    }
+
+    if (categoriesIds.some((id: unknown) => !Number.isInteger(Number(id)))) {
+        
+        return res.status(400).json({success: false, message: "categories it's not a list of integers",});
+    }
+
+    const categories = await prisma.category.findMany({where: {id: { in: categoriesIds },},});
+
+    if (categories.length !== categoriesIds.length) {
+        
+        const missing = categoriesIds.length - categories.length;
+
+        return res.status(404).json({success: false, message: `${missing} category ID${missing === 1? "" : "s"} were not found`,});
+    }
     
     const updatedQuote = await prisma.quote.update({
         where: {id: parseInt(id as string)},
         data: {
             content,
             authorId,
-            categories: categories? {set:categories.map((id: number) => ({id})),}: {},
+            categories: categories? {set:categoriesIds.map((id: number) => ({id})),}: {},
             language,
             status: status? status.toString().toUpperCase() : undefined,
         },

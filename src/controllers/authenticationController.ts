@@ -33,7 +33,7 @@ export const register = async (req: Request, res: Response) => {
     });
 
     res.status(201).json({
-        sucess: true,
+        success: true,
         message: "New user created",
         data: { id: newUser.id, username: newUser.username },
     });    
@@ -50,11 +50,11 @@ export const login = async (req: Request, res: Response) => {
 
     const user = await prisma.user.findUnique({where: {username}})
 
-    if(!user || user.isDeleted){return res.status(401).json({success: false, message: "Invalid username or password.",});}
+    if(!user || user.isDeleted){return res.status(401).json({success: false, message: "Incorrect username or password.",});}
 
     const isPasswordCorrect = await bcrypt.compare(password, user.password);
 
-    if(!isPasswordCorrect){return res.status(401).json({success: false, message: "Invalid username or password.",});}
+    if(!isPasswordCorrect){return res.status(401).json({success: false, message: "Incorrect username or password.",});}
 
     const token = generateToken({
         userId: user.id,
