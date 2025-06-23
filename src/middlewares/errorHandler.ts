@@ -14,7 +14,7 @@ export const errorHandler = (err: unknown, _req: Request, res: Response, _next: 
   }
 
   res.status(500).json({
-    error: "Generic Error Message",
-    details: message
+    success: false,
+    message: message,
   });
 };

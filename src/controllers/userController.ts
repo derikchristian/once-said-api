@@ -4,14 +4,15 @@ import { UserRole } from '@prisma/client';
 import bcrypt from "bcrypt";
 
 function toBoolean(value: unknown) {
-    if (value === "true" || value === true) return true;
+    if (value === undefined) return
     if (value === "false" || value === false) return false;
+    if (value === "true" || value === true) return true;
     return "nonBoolean"
 }
 
 export const getUsers = async (req:Request, res:Response) => {
 
-    const { username, id, role } = req.query
+    const { username, id, role }: {username?: string, id?: string, role?: string} = req.query
 
     if(role && !Object.values(UserRole).includes(role.toString().toUpperCase() as UserRole) && req.user?.role === 'ADMIN') {
         
@@ -20,7 +21,7 @@ export const getUsers = async (req:Request, res:Response) => {
 
     if(id) {
 
-        if (isNaN(parseInt(id as string))) {
+        if (isNaN(parseInt(id)) || parseInt(id) <= 0) {
 
             return res.status(400).json({success: false, message: "Invalid ID."})
         }
@@ -29,9 +30,9 @@ export const getUsers = async (req:Request, res:Response) => {
     const users = await prisma.user.findMany({
         where: { 
             AND: [
-                username? {username: {contains: username.toString(), mode: "insensitive"},} : {},
-                id? {id: parseInt(id as string),} : {},
-                role && req.user?.role === 'ADMIN'? {role: role.toString().toUpperCase() as UserRole } : {}
+                username? {username: {contains: username, mode: "insensitive"},} : {},
+                id? {id: parseInt(id),} : {},
+                role && req.user?.role === 'ADMIN'? {role: role.toUpperCase() as UserRole } : {}
             ]
         },
         select: req.user?.role === 'ADMIN'? 
@@ -51,7 +52,7 @@ export const getUserById = async (req: Request, res: Response) => {
 
     const { id } = req.params
 
-    if(isNaN(parseInt(id as string))) {
+    if(isNaN(parseInt(id as string)) || parseInt(id as string) <= 0) {
         return res.status(400).json({success: false, message: "Invalid ID."})
     }    
 
@@ -85,7 +86,7 @@ export const getUserQuotesByUserId = async (req: Request, res: Response) => {
 
     const { id } = req.params
 
-    if(isNaN(parseInt(id as string))) {
+    if(isNaN(parseInt(id as string)) || parseInt(id as string) <= 0) {
         return res.status(400).json({success: false, message: "Invalid ID."})
     }    
 
@@ -126,11 +127,13 @@ export const updateUser = async (req: Request, res: Response) => {
     const { id } = req.params
     const isDeletedBol = toBoolean(isDeleted)
 
-    if(isNaN(parseInt(id as string))) {
+    if(isNaN(parseInt(id as string)) || parseInt(id as string) <= 0) {
+
         return res.status(400).json({success: false, message: "Invalid ID."})
     }
 
     if(isDeletedBol === "nonBoolean") {
+
         return res.status(400).json({success: false, message: "isDeleted is neither true or false."})
     }
 
@@ -138,8 +141,18 @@ export const updateUser = async (req: Request, res: Response) => {
         
         return res.status(400).json({success: false, message: "Invalid Role"})
     } 
-    
-    if (await prisma.user.findUnique({where: {username}})) {
+
+    const bodyFields = [
+        {value: username, label: "Username", type: "string",},
+        {value: password, label: "Password", type: "string",},
+    ];
+
+    for (const { value, label, type } of bodyFields) {
+        if (value && typeof value !== type) {
+        return res.status(400).json({ success: false, message: `${label} is in the wrong format or empty`,});}
+    }
+
+    if ( username && await prisma.user.findUnique({where: {username}})) {
 
         return res.status(409).json({success: false, message: "Username already exists.",})
     }    
@@ -209,7 +222,7 @@ export const deleteUser = async (req: Request, res: Response,) => {
 
     const { id } = req.params
 
-    if (isNaN(parseInt(id as string))) {
+    if (isNaN(parseInt(id as string)) || parseInt(id as string) <= 0) {
         return res.status(400).json({success: false, message: "Invalid ID."})
     }
 

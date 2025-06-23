@@ -5,6 +5,7 @@
 
 A fast and simple REST API that manages quotes, authors, categories, and users and serves quotes. This project is designed to be simple to use, and simplify citations or themed quote features.
 
+- A version of this API is hosted at [https://oncesaid-api.onrender.com/](https://oncesaid-api.onrender.com/), where the root serves a React project that demonstrates and showcases the main features of the API.
 
 > ✅ Built with **Node.js**, **TypeScript**, **Prisma**, **PostgreSQL** and **Express**, focusing on clean architecture, type safety, and maintainability.
 
@@ -24,7 +25,6 @@ cd once-said-api
 ```bash
 npm install
 ```
-
 
 ### 3. Make your .env
 
@@ -46,9 +46,29 @@ npm run dev
 ```
 
 The API will be available at:
-http://localhost:3000
+http://localhost:5000
 
 ---
+
+## .env Keys for the API
+
+1. DATABASE_URL: 
+- The Url used by Prisma to communicate with the database. 
+
+2. JWT_SECRET: 
+- The secret key for encoding and decoding JSON Web Tokens (JWTs).
+- If not provided, a default (unsafe) value is used. 
+
+3. PORT: 
+- The port on which the API server will run. It defaults to 5000 if not specified. 
+
+4. AUTO_APPROVE: 
+- Enables or disables automatic approval of items in the system. 
+- Set to `true` to automatically approve, or `false` to require manual approval.
+- Defaults to `false` if not specified.
+
+---
+
 
 ## API Routes 
 
@@ -142,7 +162,7 @@ http://localhost:3000
 };    
 ```
 
-### 2. Get quotes/id and quotes/random with authentication and admin role
+### 2. GET `quotes/id` and `quotes/random` with authentication and admin role
 
 **Return one quote**
 
@@ -183,47 +203,51 @@ http://localhost:3000
 
 **Categories, authors and users follow the same structure**
 
+
+### GET routes
+
 **most GET routes also implements queries for filtering**
 
 Quotes, quotes/random filtering queries:
 
 | Parameter        | Type     | Description                                                             |
 |------------------|----------|-------------------------------------------------------------------------|
-| `search`         | `string` | Filter by quote text content (partial or full match)                    |
-| `id`             | `number` | Filter by quote id                                                      |
-| `author`         | `string` | Filter by author name                                                   |
-| `authorId`       | `number` | Filter by exact author ID                                               |
-| `category`       | `string` | Filter by category name                                                 |
-| `categoryId`     | `number` | Filter by exact category ID                                             |
-| `submittedBy`    | `string` | Filter by username of the person who submitted the quote                |
-| `submittedById`  | `number` | Filter by user ID who submitted the quote                               |
-| `status`         | `string` | Filter by status (`APPROVED`, `PENDING`, `REJECTED`)                    |
-| `language`       | `string` | Filter by language (e.g., `english`, `portuguese`)                      |
+| `search`         | `String` | Filter by quote text content (partial or full match)                    |
+| `id`             | `Number` | Filter by quote id                                                      |
+| `author`         | `String` | Filter by author name                                                   |
+| `authorId`       | `Number` | Filter by exact author ID                                               |
+| `category`       | `String` | Filter by category name                                                 |
+| `categoryId`     | `Number` | Filter by exact category ID                                             |
+| `submittedBy`    | `String` | Filter by username of the person who submitted the quote                |
+| `submittedById`  | `Number` | Filter by user ID who submitted the quote                               |
+| `status`         | `Status` | Filter by status (`APPROVED`, `PENDING`, `REJECTED`)                    |
+| `language`       | `String` | Filter by language (e.g., `english`, `portuguese`)                      |
 
 categories queries:
 
 | Parameter        | Type     | Description                                                             |
 |------------------|----------|-------------------------------------------------------------------------|
-| `name`           | `string` | Filter by category name (partial or full match)                         |
-| `id`             | `number` | Filter by category id                                                   |
-| `status`         | `string` | Filter by status (`APPROVED`, `PENDING`, `REJECTED`)                    |
+| `name`           | `String` | Filter by category name (partial or full match)                         |
+| `id`             | `Number` | Filter by category id                                                   |
+| `status`         | `Status` | Filter by status (`APPROVED`, `PENDING`, `REJECTED`)                    |
 
 authors queries:
 
 | Parameter        | Type     | Description                                                             |
 |------------------|----------|-------------------------------------------------------------------------|
-| `name`           | `string` | Search authors by name (partial or full match)                          |
-| `id`             | `number` | Get a specific category by its ID                                       |
-| `status`         | `string` | Filter by status (`APPROVED`, `PENDING`, `REJECTED`)                    |
-| `qualifier`      | `string` | Filter by qualifier name if included (e.g., musician, french)           |
+| `name`           | `String` | Search authors by name (partial or full match)                          |
+| `id`             | `Number` | Get a specific category by its ID                                       |
+| `status`         | `Status` | Filter by status (`APPROVED`, `PENDING`, `REJECTED`)                    |
+| `qualifier`      | `String` | Filter by qualifier name if included (e.g., musician, french)           |
 
 users queries:
 
 | Parameter        | Type     | Description                                                             |
 |------------------|----------|-------------------------------------------------------------------------|
-| `username`       | `string` | Search users by username (partial or full match)                        |
-| `id`             | `number` | Get a specific category by its ID                                       |
-| `status`         | `string` | Filter by status (`APPROVED`, `PENDING`, `REJECTED`)                    |
+| `username`       | `String` | Search users by username (partial or full match)                        |
+| `id`             | `Number` | Get a specific category by its ID                                       |
+| `status`         | `Status` | Filter by status (`APPROVED`, `PENDING`, `REJECTED`)                    |
+
 
 ### POST routes
 
@@ -231,45 +255,105 @@ users queries:
 
 Fields for `/quotes`:
 
-| Parâmetro       | Type       | Description                                                 | Requirement   |
+| Parameter       | Type       | Description                                                 | Requirement   |
 | --------------- | ---------- | ----------------------------------------------------------- | ------------- | 
-| `content`       | `string`   | Quote text content                                          | Required      |
-| `authorId`      | `number`   | Quote author ID                                             | Required      |
-| `categoriesIds` | `number[]` | List of quote categories IDs                                | Required      | 
-| `language`      | `string`   | Language of the quote (e.g., `portugues`, `english`)        | Required      |
+| `content`       | `String`   | Quote text content                                          | Required      |
+| `authorId`      | `Number`   | Quote author ID                                             | Required      |
+| `categoriesIds` | `Number[]` | List of quote categories IDs                                | Required      | 
+| `language`      | `String`   | Language of the quote (e.g., `portugues`, `english`)        | Required      |
 
-Campos para `/categories`:
+Fields for `/categories`:
 
-| Parâmetro       | Type       | Description                                                 | Requirement   |
+| Parameter       | Type       | Description                                                 | Requirement   |
 | --------------- | ---------- | ----------------------------------------------------------- | ------------- | 
-| `name`          | `string`   | Category name                                               | Required      |
+| `name`          | `String`   | Category name                                               | Required      |
 
-Campos para `/authors`:
+Fields for `/authors`:
 
-| Parâmetro       | Type       | Description                                                 | Requirement   |
+| Parameter       | Type       | Description                                                 | Requirement   |
 | --------------- | ---------- | ----------------------------------------------------------- | ------------- | 
-| `name`          | `string`   | Author Name                                                 | Required      |
-| `qualifier`     | `string`   | qualifier for desambiguation (e.g., musician, french)       | Optional      |
-| `imageUrl`      | `string`   | Author image URL                                            | Optional      | 
+| `name`          | `String`   | Author Name                                                 | Required      |
+| `qualifier`     | `String`   | qualifier for desambiguation (e.g., musician, french)       | Optional      |
+| `imageUrl`      | `String`   | Url for the new author image                                | Optional      | 
 
 
-Campos para `/register`:
+Fields for `/register`:
 
-| Parâmetro       | Type       | Description                                                 | Requirement   |
+| Parameter       | Type       | Description                                                 | Requirement   |
 | --------------- | ---------- | ----------------------------------------------------------- | ------------- | 
-| `username`      | `string`   | Username for the new user                                   | Required      |
-| `password`      | `string`   | Password for the new user                                   | Required      |
+| `username`      | `String`   | Username for the new user                                   | Required      |
+| `password`      | `String`   | Password for the new user                                   | Required      |
 
 
-Campos para `/login`:
+Fields for `/login`:
 
-| Parâmetro       | Type       | Description                                                 | Requirement   |
+| Parameter       | Type       | Description                                                 | Requirement   |
 | --------------- | ---------- | ----------------------------------------------------------- | ------------- | 
-| `username`      | `string`   | Your username                                               | Required      |
-| `password`      | `string`   | Your password                                               | Required      |
+| `username`      | `String`   | Your username                                               | Required      |
+| `password`      | `String`   | Your password                                               | Required      |
 
 
-/users doesn't implement a `POST` route
+#### Observations:
+
+- /users doesn't implement a `POST` route
+
+
+### PATCH routes
+
+#### All PATCH routes are optional fields
+
+Fields for `/quotes`:
+
+| Parameter       | Type       | Description                                                 | 
+| --------------- | ---------- | ----------------------------------------------------------- |
+| `content`       | `String`   | Quote new text content                                      |
+| `authorId`      | `Number`   | Quote new author ID                                         |
+| `categoriesIds` | `Number[]` | Quote list of new categories IDs                            | 
+| `language`      | `String`   | New language of the quote (e.g., `portugues`, `english`)    |
+| `status`        | `Status`   | Quote new status (`APPROVED`, `PENDING`, `REJECTED`)        |
+
+Fields for `/categories`:
+
+| Parameter       | Type       | Description                                                 |
+| --------------- | ---------- | ----------------------------------------------------------- |
+| `name`          | `String`   | Category name                                               |
+| `status`        | `Status`   | Category new status (`APPROVED`, `PENDING`, `REJECTED`)     |
+
+Fields for `/authors`:
+
+| Parameter       | Type       | Description                                                 | 
+| --------------- | ---------- | ----------------------------------------------------------- | 
+| `name`          | `String`   | Author new name                                             |
+| `qualifier`     | `String`   | Author new qualifier                                        | 
+| `imageUrl`      | `String`   | Author new image URL                                        |
+| `status`        | `Status`   | Author new status (`APPROVED`, `PENDING`, `REJECTED`)       |
+
+
+Fields for `/users`:
+
+| Parameter       | Type       | Description                                                 | 
+| --------------- | ---------- | ----------------------------------------------------------- | 
+| `username`      | `String`   | User new username                                           |
+| `password`      | `String`   | User new password                                           | 
+| `role`          | `UserRole` | User new Role (`USER`, `ADMIN`)                             |
+| `isDeleted`     | `boolean`  | User soft delete flag                                       | 
+
+
+#### Observations:
+
+- Other routes don't implement a `PATCH` route.
+- Admins and owners update users and quotes, only admins update categories and authors, users cannot modify status or roles, admins cannot modify users passwords.
+
+
+### DELETE routes
+
+#### All DELETE routes only user the id parameter e.g. DELETE /quotes/12
+
+#### Observations:
+
+- Delete is implemente by all routes except `/authentication`
+- Admin and owner only route for quotes and users, admin only route for categories and authors.
+
 
 ---
 
@@ -352,7 +436,7 @@ once-said-api
 
 ## Near future improvements
 
-- [ ] Deploy and example page
+- [x] Deploy and example page
 - [ ] Add pagination and sorting
 - [x] Seeding
 - [ ] Security improvements
@@ -391,6 +475,8 @@ This project is part of my learning journey in backend and frontend development,
 # Once Said API
 
 Uma API REST rápida e simples que gerencia citações, autores, categorias e usuários e serve frases. Este projeto foi criado para ser simples de usar e facilitar a criação de citações ou implementações com frases tematizadas.
+
+- Uma versão desta API está hospedada em https://oncesaid-api.onrender.com/, onde serve um projeto em React que demonstra e exemplifica os principais recursos da API.
 
 > ✅ Feito com **Node.js**, **TypeScript**, **Prisma**, **PostgreSQL** e **Express**, focando em arquitetura limpa, segurança de tipos e manutenção simples.
 
@@ -432,6 +518,26 @@ npm run dev
 
 A API estará disponível em:
 http://localhost:5000
+
+---
+
+## . Chaves do .env 
+
+1. DATABASE_URL: 
+- O Url usado pelo Prisma para se comunicar com o banco de dados.
+
+2. JWT_SECRET: 
+- A chave secreta para codificar e decodificar os JSON Web Tokens (JWTs).
+- Se não fornecido, um valor padrão (não seguro) é utilizado. 
+
+3. PORT: 
+- A port na qual o servidor da API irá rodar. caso não seja especificado é usado o valor padrão 5000. 
+
+4. AUTO_APPROVE: 
+- Habilita ou desabilita a aprovação automática de itens no sistema. 
+- Defina como `true` para aprovar automaticamente, ou `false` para exigir aprovação manual.
+- caso não seja especificado é usado o valor padrão `false`.
+
 
 ---
 
@@ -567,47 +673,50 @@ http://localhost:5000
 
 **Categories, authors e users seguem a mesma estrutura.**
 
+
+### Rotas GET
+
 **A maioria das rotas `GET` também implementa filtros via query.**
 
 Parâmetros para `/quotes` e `/quotes/random`:
 
 | Parâmetro       | Tipo     | Descrição                                                   |
 | --------------- | -------- | ----------------------------------------------------------- |
-| `search`        | `string` | Filtra pelo conteúdo da frase (busca parcial ou completa)   | 
-| `id`            | `number` | Filtra pelo ID da frase (não disponível em /random)         |
-| `author`        | `string` | Filtra por nome do autor                                    |
-| `authorId`      | `number` | Filtra por ID do autor                                      |
-| `category`      | `string` | Filtra por nome da categoria                                | 
-| `categoryId`    | `number` | Filtra por ID da categoria                                  |
-| `submittedBy`   | `string` | Filtra por nome de usuário que enviou                       |
-| `submittedById` | `number` | Filtra por ID do usuário que enviou                         |
-| `status`        | `string` | Filtra por status (`APPROVED`, `PENDING`, `REJECTED`)       |
-| `language`      | `string` | Filtra por idioma (e.g., `portugues`, `english`)            |
+| `search`        | `String` | Filtra pelo conteúdo da frase (busca parcial ou completa)   | 
+| `id`            | `Number` | Filtra pelo ID da frase (não disponível em /random)         |
+| `author`        | `String` | Filtra por nome do autor                                    |
+| `authorId`      | `Number` | Filtra por ID do autor                                      |
+| `category`      | `String` | Filtra por nome da categoria                                | 
+| `categoryId`    | `Number` | Filtra por ID da categoria                                  |
+| `submittedBy`   | `String` | Filtra por nome de usuário que enviou                       |
+| `submittedById` | `Number` | Filtra por ID do usuário que enviou                         |
+| `status`        | `String` | Filtra por status (`APPROVED`, `PENDING`, `REJECTED`)       |
+| `language`      | `String` | Filtra por idioma (e.g., `portugues`, `english`)            |
 
 Parâmetros para `/categories`:
 
 | Parâmetro       | Tipo     | Descrição                                                   |
 | --------------- | -------- | ----------------------------------------------------------- |
-| `name`          | `string` | Filtra pelo nome da categoria (busca parcial ou completa)   |
-| `id`            | `number` | Filtra por ID da categoria                                  |
-| `status`        | `string` | Filtra por status (`APPROVED`, `PENDING`, `REJECTED`)       |
+| `name`          | `String` | Filtra pelo nome da categoria (busca parcial ou completa)   |
+| `id`            | `Number` | Filtra por ID da categoria                                  |
+| `status`        | `String` | Filtra por status (`APPROVED`, `PENDING`, `REJECTED`)       |
 
 Parâmetros para `/authors`:
 
 | Parâmetro       | Tipo     | Descrição                                                   |
 | --------------- | -------- | ----------------------------------------------------------- |
-| `name`          | `string` | Filtra pelo nome do autor (busca parcial ou completa)       |
-| `id`            | `number` | Filtra pelo ID do author                                    |
-| `status`        | `string` | Filtra por status (`APPROVED`, `PENDING`, `REJECTED`)       |
-| `qualifier`     | `string` | Filtra por qualificador se incluso (e.g., musician, french) |
+| `name`          | `String` | Filtra pelo nome do autor (busca parcial ou completa)       |
+| `id`            | `Number` | Filtra pelo ID do author                                    |
+| `status`        | `String` | Filtra por status (`APPROVED`, `PENDING`, `REJECTED`)       |
+| `qualifier`     | `String` | Filtra por qualificador se incluso (e.g., musician, french) |
 
 Parâmetros para `/users`:
 
 | Parâmetro       | Tipo     | Descrição                                                   |
 | --------------- | -------- | ----------------------------------------------------------- |
-| `username`      | `string` | Filtra pelo nome do usuário (busca parcial ou completa)     |
-| `id`            | `number` | Filtra pelo ID do usuário                                   |
-| `status`        | `string` | Filtra por status (`APPROVED`, `PENDING`, `REJECTED`)       |
+| `username`      | `String` | Filtra pelo nome do usuário (busca parcial ou completa)     |
+| `id`            | `Number` | Filtra pelo ID do usuário                                   |
+| `status`        | `String` | Filtra por status (`APPROVED`, `PENDING`, `REJECTED`)       |
 
 ### Rotas POST
 
@@ -617,43 +726,103 @@ Campos para `/quotes`:
 
 | Parâmetro       | Tipo       | Descrição                                                   | Exigência     |
 | --------------- | ---------- | ----------------------------------------------------------- | ------------- | 
-| `content`       | `string`   | Conteúdo textual da frase                                   | Obrigatório   |
-| `authorId`      | `number`   | ID do autor da frase                                        | Obrigatório   |
-| `categories`    | `number[]` | lista dos IDs das categorias da frase                       | Obrigatório   | 
-| `language`      | `string`   | Idioma da frase (e.g., `portugues`, `english`)              | Obrigatório   |
+| `content`       | `String`   | Conteúdo textual da frase                                   | Obrigatório   |
+| `authorId`      | `Number`   | ID do autor da frase                                        | Obrigatório   |
+| `categories`    | `Number[]` | lista dos IDs das categorias da frase                       | Obrigatório   | 
+| `language`      | `String`   | Idioma da frase (e.g., `portugues`, `english`)              | Obrigatório   |
 
 Campos para `/categories`:
 
 | Parâmetro       | Tipo       | Descrição                                                   | Exigência     |
 | --------------- | ---------- | ----------------------------------------------------------- | ------------- | 
-| `name`          | `string`   | Nome da categoria                                           | Obrigatório   |
+| `name`          | `String`   | Nome da categoria                                           | Obrigatório   |
 
 Campos para `/authors`:
 
 | Parâmetro       | Tipo       | Descrição                                                   | Exigência     |
 | --------------- | ---------- | ----------------------------------------------------------- | ------------- | 
-| `name`          | `string`   | Nome do autor                                               | Obrigatório   |
-| `qualifier`     | `string`   | Qualificafor para desambiguação                             | Opcional      |
-| `ImageUrl`      | `string`   | Url da imagem do autor                                      | Opcional      | 
+| `name`          | `String`   | Nome do autor                                               | Obrigatório   |
+| `qualifier`     | `String`   | Qualificafor para desambiguação                             | Opcional      |
+| `ImageUrl`      | `String`   | Url da imagem do autor                                      | Opcional      | 
 
 
 Campos para `/register`:
 
 | Parâmetro       | Tipo       | Descrição                                                   | Exigência     |
 | --------------- | ---------- | ----------------------------------------------------------- | ------------- | 
-| `username`      | `string`   | Nome do novo usuário                                        | Obrigatório   |
-| `password`      | `string`   | Senha do novo usuário                                       | Obrigatório   |
+| `username`      | `String`   | Nome do novo usuário                                        | Obrigatório   |
+| `password`      | `String`   | Senha do novo usuário                                       | Obrigatório   |
 
 
 Campos para `/login`:
 
 | Parâmetro       | Tipo       | Descrição                                                   | Exigência     |
 | --------------- | ---------- | ----------------------------------------------------------- | ------------- | 
-| `username`      | `string`   | Seu nome de usuário                                         | Obrigatório   |
-| `password`      | `string`   | Sua Senha                                                   | Obrigatório   |
+| `username`      | `String`   | Seu nome de usuário                                         | Obrigatório   |
+| `password`      | `String`   | Sua Senha                                                   | Obrigatório   |
 
 
-/users não implementa uma rota `POST`
+#### Observações:
+
+- /users não implementa uma rota `POST`
+
+
+### Rotas PATCH
+
+#### Todos campos das rotas PATCH são opcionais 
+
+Campos para `/quotes`:
+
+| Parâmetro       | Tipo       | Descrição                                                    |
+| --------------- | ---------- | ------------------------------------------------------------ |
+| `content`       | `String`   | Novo conteúdo textual da frase                               |
+| `authorId`      | `Number`   | Novo Id do autor da frase                                    |
+| `categoriesIds` | `Number[]` | Lista dos IDs das novas categorias da frase                  | 
+| `language`      | `String`   | Novo Idioma da frase (e.g., `portugues`, `english`)          |
+| `status`        | `Status`   | Novo status da frase (`APPROVED`, `PENDING`, `REJECTED`)     |
+
+Campos para `/categories`:
+
+| Parâmetro       | Tipo       | Descrição                                                    |
+| --------------- | ---------- | ------------------------------------------------------------ |
+| `name`          | `String`   | Novo nome da categoria                                       |
+| `status`        | `Status`   | Novo status da categoria (`APPROVED`, `PENDING`, `REJECTED`) |
+
+Campos para `/authors`:
+
+| Parâmetro       | Tipo       | Descrição                                                   |
+| --------------- | ---------- | ----------------------------------------------------------- | 
+| `name`          | `String`   | Novo nome do autor                                          |
+| `qualifier`     | `String`   | Novo qualificador do autor                                  | 
+| `imageUrl`      | `String`   | Url da nova imagem do autor                                 |
+| `status`        | `Status`   | Novo status do autor (`APPROVED`, `PENDING`, `REJECTED`)    |
+
+
+Campos para `/authors`:
+
+| Parâmetro       | Tipo       | Descrição                                                   |
+| --------------- | ---------- | ----------------------------------------------------------- | 
+| `username`      | `String`   | Novo nome de usuario do usuário                             |
+| `password`      | `String`   | Nova senha do usuário                                       | 
+| `role`          | `UserRole` | Novo cargo do usuário (`USER`, `ADMIN`)                     |
+| `isDeleted`     | `boolean`  | Nova flag de soft delete do usuário                         | 
+
+
+#### Observations:
+
+- Outras rotas não implementam uma rota `PATCH`.
+- Administradores e proprietários atualizam usuários e citações, apenas administradores atualizam categorias e autores, usuários não podem modificar status ou cargos, e administradores não podem modificar as senhas dos usuários.
+
+
+### Rotas DELETE
+
+#### Todas as rotas DELETE apenas utilizam o parâmetro id, e.g. DELETE /quotes/12
+
+#### Observations:
+
+- DELETE é implementado em todas as rotas, exceto /authentication.
+- rota somentde de administradores e proprietários para citações e usuários, e somente de administradores para categorias e autores.
+
 
 ---
 
@@ -736,7 +905,7 @@ once-said-api
 
 ## Melhorias Futuras 
 
-- [ ] Deploy e pagina de exemplo
+- [x] Deploy e pagina de exemplo
 - [ ] Paginação e Ordenamento
 - [x] Dados iniciais
 - [ ] Melhorias de segurança

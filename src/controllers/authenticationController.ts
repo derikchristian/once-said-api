@@ -17,6 +17,16 @@ export const register = async (req: Request, res: Response) => {
         return res.status(400).json({success: false, message: "Password is required",})
     }
 
+    const bodyFields = [
+        {value: username, label: "Username", type: "string",},
+        {value: password, label: "Password", type: "string",},
+    ];
+
+    for (const { value, label, type } of bodyFields) {
+        if (typeof value !== type) {
+        return res.status(400).json({ success: false, message: `${label} is in the wrong format`,});}
+    }
+
     if (await prisma.user.findUnique({where: {username}})) {
 
         return res.status(409).json({success: false, message: "Username already exists",})
@@ -47,6 +57,18 @@ export const login = async (req: Request, res: Response) => {
     if (!username) {return res.status(400).json({success: false, message: "Username is required.",});}
 
     if (!password) {return res.status(400).json({success: false, message: "Password is required.",});}
+
+    const bodyFields = [
+    {value: username, label: "Username", type: "string",},
+    {value: password, label: "Password", type: "string",},
+    ];
+
+    for (const { value, label, type } of bodyFields) {
+        
+        if (typeof value !== type) {
+            
+            return res.status(400).json({success: false, message: `${label} is in the wrong format`,});}
+        }
 
     const user = await prisma.user.findUnique({where: {username}})
 

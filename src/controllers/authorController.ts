@@ -1,32 +1,34 @@
 import prisma from "../lib/prisma";
 import { Request, Response } from "express";
 import { Status } from '@prisma/client';
+import capitilize from "../utils/capitalize";
 
 
 export const getAuthors = async (req:Request, res:Response) => {
 
-    const { name, id, qualifier, status } = req.query
+    const { name, id, qualifier, status }: {name?:string, id?:string, qualifier?: string, status?:string} = req.query
 
     // this checks if status exist and is a valid status included in the Status enum
-    if(status && !Object.values(Status).includes(status.toString().toUpperCase() as Status)) {
+    if(status && !Object.values(Status).includes(status.toUpperCase() as Status)) {
         
         return res.status(400).json({success: false, message: "Invalid status"})
     }
     
-    const statusFilter:{status?: Status} =  {}
+    const statusFiltered:{status?: Status} =  {}
     
+    //Setting status so non admin users only see approved results
     if (req.user?.role !== "ADMIN") {
 
-        statusFilter.status = "APPROVED"
+        statusFiltered.status = "APPROVED"
 
     }else if (status) {
 
-        statusFilter.status = status.toString().toUpperCase() as Status
+        statusFiltered.status = status.toUpperCase() as Status
     }
 
     if(id) {
 
-        if (isNaN(parseInt(id as string))) {
+        if (isNaN(parseInt(id)) || parseInt(id as string) <= 0) {
 
             return res.status(400).json({success: false, message: "Invalid ID"})
         }
@@ -35,10 +37,10 @@ export const getAuthors = async (req:Request, res:Response) => {
     const authors = await prisma.author.findMany({
         where: {
             AND: [
-                statusFilter,
-                name? {name: {contains: name.toString(), mode: "insensitive"},} : {},
-                qualifier? {qualifier: {contains: qualifier.toString(), mode: "insensitive"},} : {},
-                id? {id: parseInt(id as string),} : {},
+                statusFiltered,
+                name? {name: {contains: name, mode: "insensitive"},} : {},
+                qualifier? {qualifier: {contains: qualifier, mode: "insensitive"},} : {},
+                id? {id: parseInt(id),} : {},
             ]
         },
     });
@@ -55,13 +57,14 @@ export const getAuthorById = async (req: Request, res: Response) => {
 
     const { id } = req.params
 
-    if(isNaN(parseInt(id as string))) {
+    if(isNaN(parseInt(id)) || parseInt(id as string) <= 0) {
         return res.status(400).json({success: false, message: "Invalid ID"})
     }    
 
     const author = await prisma.author.findUnique({
         where: {
             id: parseInt(id as string),
+            // filtering to not show rejected to admins so the list dont get full of irrelevant quotes
             ...(req.user?.role === "ADMIN"? {} : {status: {in: ["APPROVED", "PENDING"]}}),
         },
     })
@@ -88,13 +91,13 @@ export const getQuotesFromAuthorId = async (req: Request, res: Response) => {
 
     const { id } = req.params
 
-    if(isNaN(parseInt(id as string))) {
+    if(isNaN(parseInt(id)) || parseInt(id) <= 0) {
         return res.status(400).json({success: false, message: "Invalid ID"})
     }    
 
     const author = await prisma.author.findUnique({
         where: {
-            id: parseInt(id as string),
+            id: parseInt(id),
             ...(req.user?.role === "ADMIN"? {} : {status: {in: ["APPROVED", "PENDING"]}}),
         },
     })
@@ -128,9 +131,20 @@ export const createAuthor = async (req: Request, res: Response) => {
 
     const { name, qualifier, imageUrl } = req.body
 
-    if (!name) {
+    if(!name || name === "") {
         return res.status(400).json({success: false, message: "Author missing a name"});
     }
+    
+    const bodyFields = [
+        {value: name, label: "Author name", type: "string",},
+        {value: qualifier, label: "Qualifier name", type: "string",},
+        {value: imageUrl, label: "Image", type: "string",},
+    ];
+
+    for (const { value, label, type } of bodyFields) {
+        if (value !== undefined && typeof value !== type) {
+        return res.status(400).json({ success: false, message: `${label} is in the wrong format`,});}
+    }   
 
     const authorExist = await prisma.author.findFirst({
         where: {
@@ -146,8 +160,8 @@ export const createAuthor = async (req: Request, res: Response) => {
 
     const newAuthor =  await prisma.author.create({
         data: {
-            name,
-            qualifier,
+            name: capitilize(name) as string,
+            qualifier: capitilize(qualifier),
             imageUrl,
             status,
         },
@@ -166,11 +180,23 @@ export const updateAuthor = async (req: Request, res: Response) => {
     const { name, qualifier, imageUrl, status } = req.body
     const { id } = req.params
 
-    if(isNaN(parseInt(id as string))) {
+    if(isNaN(parseInt(id as string)) || parseInt(id as string) <= 0) {
         return res.status(400).json({success: false, message: "Invalid ID"})
     }
 
-    if(status && !Object.values(Status).includes(status.toString().toUpperCase() as Status)) {
+    const bodyFields = [
+    {value: name, label: "Author name", type: "string",},
+    {value: qualifier, label: "Qualifier name", type: "string",},
+    {value: imageUrl, label: "Image", type: "string",},
+    {value: status, label: "status", type: "string",},
+    ];
+
+    for (const { value, label, type } of bodyFields) {
+        if (value !== undefined && typeof value !== type) {
+        return res.status(400).json({ success: false, message: `${label} is in the wrong format`,});}
+    } 
+
+    if(status && !Object.values(Status).includes(status.toUpperCase() as Status)) {
         
         return res.status(400).json({success: false, message: "Invalid status"})
     }    
@@ -186,8 +212,8 @@ export const updateAuthor = async (req: Request, res: Response) => {
     const updatedAuthor = await prisma.author.update({
         where: {id: parseInt(id as string)},
         data: {
-            name,
-            qualifier,
+            name: capitilize(name),
+            qualifier: capitilize(qualifier),
             imageUrl,
             status: status? status.toString().toUpperCase() : undefined,
         },
@@ -206,7 +232,7 @@ export const deleteAuthor = async (req: Request, res: Response,) => {
 
     const { id } = req.params
 
-    if(isNaN(parseInt(id as string))) {
+    if(isNaN(parseInt(id as string)) || parseInt(id as string) <= 0) {
         return res.status(400).json({success: false, message: "Invalid ID"})
     }
 

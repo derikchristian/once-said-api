@@ -1,13 +1,14 @@
 import prisma from "../lib/prisma";
 import { Request, Response } from "express";
 import { Status } from '@prisma/client';
+import capitilize from "../utils/capitalize";
 
 export const getQuotes = async (req:Request, res:Response) => {
 
-    const { search, id, category, categoryId, status, language, author, authorId, submittedBy, submittedById } = req.query
+    const { search, id, category, categoryId, status, language, author, authorId, submittedBy, submittedById }: {search?: string, id?: string, category?: string, categoryId?: string, status?: string, language?: string, author?: string, authorId?: string, submittedBy?: string, submittedById?: string} = req.query
 
     // this checks if status exist and is a valid status included in the Status enum
-    if(status && !Object.values(Status).includes(status.toString().toUpperCase() as Status)) {
+    if(status && !Object.values(Status).includes(status.toUpperCase() as Status)) {
         
         return res.status(400).json({success: false, message: "Invalid status"})
     }
@@ -20,51 +21,37 @@ export const getQuotes = async (req:Request, res:Response) => {
 
     }else if (status) {
 
-        statusFilter.status = status.toString().toUpperCase() as Status
+        statusFilter.status = status.toUpperCase() as Status
     }
+    
+    const bodyIdFields = [
+    {value: id, label: "quote",},
+    {value: categoryId, label: "category",},
+    {value: authorId, label: "authors",},
+    {value: submittedById, label: "user",},
+    ];
 
-    if (id) {
+    for (const { value, label } of bodyIdFields) {
+        
+        if (value !== undefined && ( isNaN(parseInt(value)) || parseInt(value) <= 0 )) {
 
-        if (isNaN(parseInt(id as string))) {
-
-            return res.status(400).json({success: false, message: "Invalid ID"})
+            return res.status(400).json({ success: false, message: `Invalid ${label} ID`,})
         }
     }
-
-    if (categoryId && isNaN(parseInt(categoryId as string))) {
-
-        return res.status(400).json({success: false, message: "Invalid category Id"})
-    }    
-
-    if (authorId) {
-
-        if (authorId && isNaN(parseInt(authorId as string))) {
-
-            return res.status(400).json({success: false, message: "Invalid author ID"})
-        }
-    }    
-
-    if (submittedById) {
-
-        if (isNaN(parseInt(submittedById as string))) {
-
-            return res.status(400).json({success: false, message: "Invalid user ID"})
-        }
-    }    
 
     const quotes = await prisma.quote.findMany({
         where: {
             AND: [
                 statusFilter,
-                search? {content: {contains: search.toString(), mode: "insensitive"},} : {},
-                id? {id: parseInt(id as string)} : {},
-                category? {categories: {some: {name: {equals: category.toString(), mode: "insensitive"},},},} : {},
-                categoryId? {categories: {some: {id: parseInt(categoryId as string),},},} : {},
-                language? {language: {contains: language.toString(), mode: "insensitive"},} : {},
-                author? {author: {name: {contains: author.toString(), mode: "insensitive"},},} : {},
-                authorId? {authorId: parseInt(authorId as string),} : {},
-                submittedBy? {submittedBy: {username: {contains: submittedBy.toString(), mode: "insensitive"},},} : {},
-                submittedById? {submittedById: parseInt(submittedById as string),} : {}
+                search? {content: {contains: search, mode: "insensitive"},} : {},
+                id? {id: parseInt(id)} : {},
+                category? {categories: {some: {name: {equals: category, mode: "insensitive"},},},} : {},
+                categoryId? {categories: {some: {id: parseInt(categoryId),},},} : {},
+                language? {language: {contains: language, mode: "insensitive"},} : {},
+                author? {author: {name: {contains: author, mode: "insensitive"},},} : {},
+                authorId? {authorId: parseInt(authorId),} : {},
+                submittedBy? {submittedBy: {username: {contains: submittedBy, mode: "insensitive"},},} : {},
+                submittedById? {submittedById: parseInt(submittedById),} : {}
             ]
         },
         include: {
@@ -96,7 +83,8 @@ export const getQuoteById = async (req: Request, res: Response) => {
 
     const { id } = req.params
 
-    if(isNaN(parseInt(id as string))) {
+    if(isNaN(parseInt(id as string)) || parseInt(id) <= 0) {
+
         return res.status(400).json({success: false, message: "Invalid ID"})
     }    
 
@@ -137,25 +125,35 @@ export const getQuoteById = async (req: Request, res: Response) => {
 
 export const getRandomQuote = async (req: Request, res: Response) => {
 
-    const { search, category, categoryId, language, author, authorId } = req.query
-    let isMultisearchOnRandom = false
+    const { search, category, categoryId, language, author, authorId }: {search?: string, category?: string, categoryId?: string, language?: string, author?: string, authorId?: string,} = req.query
 
-    // count the amount of passed queries
+    // count the amount of passed queries except language
     const activeFilters = [search, category, categoryId, author, authorId].filter(Boolean)
 
-    if (activeFilters.length > 1) isMultisearchOnRandom = true;
+    const bodyIdFields = [
+    {value: categoryId, label: "category",},
+    {value: authorId, label: "authors",},
+    ];
+
+    for (const { value, label } of bodyIdFields) {
+
+        if (value !== undefined && ( isNaN(parseInt(value)) || parseInt(value) <= 0 )) {
+
+            return res.status(400).json({ success: false, message: `Invalid ${label} ID`,})
+        }
+    }
 
     const quotesAmount = await prisma.quote.count({
         
         where: {
             status: "APPROVED",
             AND: [
-            search? {content: {contains: search.toString(), mode: "insensitive"},} : {},
-            category? {categories: {some: {name: {equals: category.toString(), mode: "insensitive"},},},} : {},
-            categoryId? {categories: {some: {id: parseInt(categoryId as string),},},} : {},
-            language? {language: {contains: language.toString(), mode: "insensitive"},} : {},
-            author? {author: {name: {contains: author.toString(), mode: "insensitive"},},} : {},
-            authorId? {authorId: parseInt(authorId as string),} : {},
+            search? {content: {contains: search, mode: "insensitive"},} : {},
+            category? {categories: {some: {name: {equals: category, mode: "insensitive"},},},} : {},
+            categoryId? {categories: {some: {id: parseInt(categoryId),},},} : {},
+            language? {language: {contains: language, mode: "insensitive"},} : {},
+            author? {author: {name: {contains: author, mode: "insensitive"},},} : {},
+            authorId? {authorId: parseInt(authorId),} : {},
             ]
         }
     })
@@ -168,12 +166,12 @@ export const getRandomQuote = async (req: Request, res: Response) => {
         where: {
             status: "APPROVED",
             AND: [
-            search? {content: {contains: search.toString(), mode: "insensitive"},} : {},
-            category? {categories: {some: {name: {equals: category.toString(), mode: "insensitive"},},},} : {},
-            categoryId? {categories: {some: {id: parseInt(categoryId as string),},},} : {},
-            language? {language: {contains: language.toString(), mode: "insensitive"},} : {},
-            author? {author: {name: {contains: author.toString(), mode: "insensitive"},},} : {},
-            authorId? {authorId: parseInt(authorId as string),} : {},
+            search? {content: {contains: search, mode: "insensitive"},} : {},
+            category? {categories: {some: {name: {equals: category, mode: "insensitive"},},},} : {},
+            categoryId? {categories: {some: {id: parseInt(categoryId),},},} : {},
+            language? {language: {contains: language, mode: "insensitive"},} : {},
+            author? {author: {name: {contains: author, mode: "insensitive"},},} : {},
+            authorId? {authorId: parseInt(authorId),} : {},
             ]
         },
         skip: index,
@@ -192,7 +190,7 @@ export const getRandomQuote = async (req: Request, res: Response) => {
 
     res.status(200).json({
         success: true, 
-        message:isMultisearchOnRandom? "Warning: you're filtering multiple parameters in a random request" : "",
+        message:activeFilters.length > 1? "Warning: you're filtering multiple parameters in a random request" : "",
         authenticated: !!req.user,
         role: req.user ? req.user.role : null,         
         data: quote
@@ -203,9 +201,42 @@ export const createQuote = async (req: Request, res: Response) => {
 
     const { content, authorId, categoriesIds, language } = req.body
 
-    if (!content || !authorId || !categoriesIds || !language) {
+    if (!content) {
+        return res.status(400).json({ success: false, message: "Quote missing its content",});
+    }
+
+    if (!language) {
+        return res.status(400).json({ success: false, message: "Quote missing a language",});
+    }
+
+    // using parseInt so it also converts stings
+    if(isNaN(parseInt(authorId)) || parseInt(authorId) <= 0) {
+        return res.status(400).json({success: false, message: "Invalid author ID"})
+    }
+
+    if (categoriesIds && !Array.isArray(categoriesIds)) {
+      
+        return res.status(400).json({success: false, message: "Categories Ids it's on the wrong format.",});
+    }
+
+    if (!categoriesIds || categoriesIds.length === 0) {
+      
+        return res.status(400).json({success: false, message: "Missing or empty categories",});
+    }
+
+    if (categoriesIds.some((id: unknown) => !isNaN(parseInt(id as string)))) {
         
-        return res.status(400).json({ success: false, message: "Missing required fields.",});
+        return res.status(400).json({success: false, message: "categories it's not a list of numbers",});
+    }
+
+    const bodyFields = [
+        {value: content, label: "Content", type: "string",},
+        {value: language, label: "Language", type: "string",},
+    ];
+
+    for (const { value, label, type } of bodyFields) {
+        if (value !== undefined && typeof value !== type) {
+        return res.status(400).json({ success: false, message: `${label} is in the wrong format`,});}
     }
 
     const quote = await prisma.quote.findUnique({
@@ -213,34 +244,21 @@ export const createQuote = async (req: Request, res: Response) => {
     });
 
     if (quote) {
-        return res.status(400).json({success: false, message: "Quote text already exists.",});
-    } 
 
-    if (!Number.isInteger(authorId)) {
-        
-        return res.status(400).json({success: false, message: "Author Id it`s not a valid integer",});
+        return res.status(400).json({success: false, message: "Quote text already exists.",});
     }
     
     const author = await prisma.author.findUnique({ where: { id: authorId } });
     
     if (!author) {
         
-        return res.status(400).json({ success: false, message: "Author Id not found" });
-    }
-    
-    if (categoriesIds && !Array.isArray(categoriesIds)) {
-      
-        return res.status(400).json({success: false, message: "Categories Ids it's on the wrong format.",});
+        return res.status(400).json({ success: false, message: "Author ID not found" });
     }
 
-    if (categoriesIds.some((id: unknown) => !Number.isInteger(Number(id)))) {
-        
-        return res.status(400).json({success: false, message: "categories it's not a list of integers",});
-    }
+    const filteredCategoriesIds = [...new Set(categoriesIds.map( (id: string | number ) => parseInt(id as string)))] as number[];
+    const categories = await prisma.category.findMany({where: {id: { in: filteredCategoriesIds as number[] },},});
 
-    const categories = await prisma.category.findMany({where: {id: { in: [... new Set(categoriesIds)] as number[] },},});
-
-    if (categories.length !== categoriesIds.length) {
+    if (categories.length !== filteredCategoriesIds.length) {
         
         const missing = categoriesIds.length - categories.length;
 
@@ -251,10 +269,10 @@ export const createQuote = async (req: Request, res: Response) => {
 
     const newQuote =  await prisma.quote.create({
         data: {
-            content, 
-            authorId, 
-            categories:{connect:categoriesIds.map((id: number) => ({id})),},
-            language, 
+            content: capitilize(content) as string, 
+            authorId: parseInt(authorId), 
+            categories:{connect:filteredCategoriesIds.map((id: number) => ({id})),},
+            language: capitilize(language) as string, 
             submittedById: req.user!.id,
             status, 
         },include:{
@@ -282,8 +300,44 @@ export const updateQuote = async (req: Request, res: Response) => {
     const { content, authorId, categoriesIds, language, status } = req.body
     const { id } = req.params
 
-    if(isNaN(parseInt(id as string))) {
-        return res.status(400).json({success: false, message: "Invalid ID"})
+    if(isNaN(parseInt(id as string)) || parseInt(id as string) <= 0) {
+
+        return res.status(400).json({success: false, message: "Invalid quote ID"})
+    }
+
+    const bodyFields = [
+        {value: content, label: "Content", type: "string",},
+        {value: language, label: "Language", type: "string",},
+    ];
+
+    for (const { value, label, type } of bodyFields) {
+        if (value && typeof value !== type) {
+        return res.status(400).json({ success: false, message: `${label} is in the wrong format or empty`,});}
+    }
+
+    if(status && !Object.values(Status).includes(status.toUpperCase() as Status)) {
+        
+        return res.status(400).json({success: false, message: "Invalid status"})
+    }
+
+    if( authorId && (isNaN(parseInt(authorId)) || parseInt(authorId) <= 0)) {
+
+        return res.status(400).json({success: false, message: "Invalid author ID"})
+    }
+
+    if (categoriesIds && !Array.isArray(categoriesIds)) {
+      
+        return res.status(400).json({success: false, message: "Categories Ids it's on the wrong format.",});
+    }
+
+    if (categoriesIds && categoriesIds.length === 0) {
+      
+        return res.status(400).json({success: false, message: "Categories IDs exist but is empty, quotes have at least one ID",});
+    }
+
+    if (categoriesIds && categoriesIds.some((id: unknown) => !isNaN(parseInt(id as string)))) {
+        
+        return res.status(400).json({success: false, message: "categories it's not a list of numbers",});
     }
 
     const quote = await prisma.quote.findUnique({
@@ -341,10 +395,10 @@ export const updateQuote = async (req: Request, res: Response) => {
     const updatedQuote = await prisma.quote.update({
         where: {id: parseInt(id as string)},
         data: {
-            content,
+            content: capitilize(content),
             authorId,
             categories: categories? {set:categoriesIds.map((id: number) => ({id})),}: {},
-            language,
+            language: capitilize(language),
             status: status? status.toString().toUpperCase() : undefined,
         },
         include: {
@@ -372,7 +426,7 @@ export const deleteQuote = async (req: Request, res: Response,) => {
 
     const { id } = req.params
 
-    if(isNaN(parseInt(id as string))) {
+    if(isNaN(parseInt(id as string)) || parseInt(id as string) <= 0) {
         return res.status(400).json({success: false, message: "Invalid ID"})
     }
 

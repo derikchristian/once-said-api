@@ -1,14 +1,15 @@
 import prisma from "../lib/prisma";
 import { Request, Response } from "express";
 import { Status } from '@prisma/client';
+import capitilize from "../utils/capitalize";
 
 
 export const getCategories = async (req:Request, res:Response) => {
 
-    const { name, id, status } = req.query
+    const { name, id, status }: {name?:string, id?:string, status?: string} = req.query
 
     // this checks if status exist and is a valid status included in the Status enum
-    if(status && !Object.values(Status).includes(status.toString().toUpperCase() as Status)) {
+    if(status && !Object.values(Status).includes(status.toUpperCase() as Status)) {
         
         return res.status(400).json({success: false, message: "Invalid status"})
     }
@@ -21,12 +22,12 @@ export const getCategories = async (req:Request, res:Response) => {
 
     }else if (status) {
 
-        statusFilter.status = status.toString().toUpperCase() as Status
+        statusFilter.status = status.toUpperCase() as Status
     }
 
     if(id) {
 
-        if (isNaN(parseInt(id as string))) {
+        if (isNaN(parseInt(id as string))  || parseInt(id as string) <= 0) {
 
             return res.status(400).json({success: false, message: "Invalid ID"})
         }
@@ -36,7 +37,7 @@ export const getCategories = async (req:Request, res:Response) => {
         where: {
             AND: [
                 statusFilter,
-                name? {name: {contains: name.toString(), mode: "insensitive"},} : {},
+                name? {name: {contains: name, mode: "insensitive"},} : {},
                 id? {id: parseInt(id as string),} : {},
             ]
         },
@@ -54,7 +55,7 @@ export const getCategoryById = async (req: Request, res: Response) => {
 
     const { id } = req.params
 
-    if(isNaN(parseInt(id as string))) {
+    if(isNaN(parseInt(id as string)) || parseInt(id as string) <= 0) {
         return res.status(400).json({success: false, message: "Invalid ID"})
     }    
 
@@ -87,7 +88,7 @@ export const getQuotesFromCategoryId = async (req: Request, res: Response) => {
 
     const { id } = req.params
 
-    if(isNaN(parseInt(id as string))) {
+    if(isNaN(parseInt(id as string)) || parseInt(id as string) <= 0) {
         return res.status(400).json({success: false, message: "Invalid ID"})
     }    
 
@@ -131,11 +132,15 @@ export const createCategory = async (req: Request, res: Response) => {
         return res.status(400).json({success: false, message: "Category missing a name"});
     }
 
+    const bodyFields = [
+    {value: name, label: "Category name", type: "string",},
+    ];
+
     const status =  process.env.AUTO_APPROVE === 'true'? "APPROVED" : undefined
 
     const newCategory =  await prisma.category.create({
         data: {
-            name,
+            name: capitilize(name) as string,
             status,
         },
     });
@@ -153,14 +158,19 @@ export const updateCategory = async (req: Request, res: Response) => {
     const { name, status } = req.body
     const { id } = req.params
 
-    if(isNaN(parseInt(id as string))) {
+    if(isNaN(parseInt(id as string)) || parseInt(id as string) <= 0) {
         return res.status(400).json({success: false, message: "Invalid ID"})
     }
+
+    const bodyFields = [
+    {value: name, label: "Category name", type: "string",},
+    {value: status, label: "status", type: "string",},
+    ];
 
     if(status && !Object.values(Status).includes(status.toString().toUpperCase() as Status)) {
         
         return res.status(400).json({success: false, message: "Invalid status"})
-    }    
+    }
 
     const category = await prisma.category.findUnique({
         where: {id: parseInt(id as string)}, 
@@ -173,7 +183,7 @@ export const updateCategory = async (req: Request, res: Response) => {
     const updatedCategory = await prisma.category.update({
         where: {id: parseInt(id as string)},
         data: {
-            name,
+            name: capitilize(name),
             status: status? status.toString().toUpperCase() : undefined,
         },
     });
@@ -191,7 +201,7 @@ export const deleteCategory = async (req: Request, res: Response,) => {
 
     const { id } = req.params
 
-    if(isNaN(parseInt(id as string))) {
+    if(isNaN(parseInt(id as string)) || parseInt(id as string) <= 0) {
         return res.status(400).json({success: false, message: "Invalid ID"})
     }
 
