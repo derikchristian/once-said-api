@@ -1,5 +1,6 @@
 import express from "express";
 import cors from "cors";
+import path from "path";
 import quotesRoutes from "./routes/quotes"
 import authorRoutes from "./routes/author"
 import categoriesRoutes from "./routes/categories"
@@ -17,6 +18,10 @@ app.use("/authors", authorRoutes)
 app.use("/categories", categoriesRoutes)
 app.use("/users", userRoutes)
 app.use("/authentication", authenticationRoutes)
+
+app.use(express.static(path.join(__dirname, "../public")));
+
+app.get("/", (_req, res) => {res.sendFile(path.join(__dirname, "../public/index.html"));});
 
 app.use(errorHandler)
 
